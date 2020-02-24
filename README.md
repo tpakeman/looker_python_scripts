@@ -17,7 +17,7 @@ This CLI runs all of the Looker data tests against a Looker project and displays
 
 #### Sample usage
 * `python path/to/file.py -p foo` Will run all tests in project `foo`, in production mode
-* `python path/to/file.py -d -p bar` Will run all tests in project `bar`, in development mode
+* `python path/to/file.py -d -p bar baz` Will run all tests in projects `bar` and `baz`, in development mode
 ---
 ## Select fields in explore
 This is a CLI that runs a query containing all of the fields in an explore and surfaces any errors.

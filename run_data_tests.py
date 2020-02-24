@@ -6,11 +6,25 @@ from datetime import datetime as dt
 import urllib3
 import argparse
 
+# For colour-coding the output
+colours = {'HEADER':'\033[95m',
+           'OKBLUE': '\033[94m',
+           'OKGREEN': '\033[92m',
+           'WARNING': '\033[93m',
+           'FAIL': '\033[91m',
+           'END': '\033[0m',
+           'BOLD': '\033[1m',
+           'UNDERLINE': '\033[4m'}
+
 looker_client = client.setup('looker.ini')
 try:
-    looker_client.me()
+    # Use this if testing locally or on a server without a certificate
+    urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
+    user = looker_client.me()
+    print(user)
+    print(f"{colours['HEADER']}Authenticated as {user.display_name} (User ID {user.id}){colours['END']}")
 except SDKError as e:
-    print("Could not authenticate. Check `looker.ini` file")
+    print(f"{colours['FAIL']}Could not authenticate. Check `looker.ini` file{colours['END']}")
 
 # Fetch all projects and run all tests
 def run_target_tests(targets=None):
@@ -24,21 +38,21 @@ def run_target_tests(targets=None):
         misses = [t for t in targets if t not in validation_set]
         targets = [t for t in targets if t in validation_set]
         if misses != []:
-            print("Could not find the following projects:")
+            print(f"{colours['WARNING']}Could not find the following projects:{colours['END']}")
             for m in misses:
-                print(f"\t{m}")
+                print(f"{colours['WARNING']}\t{m}{colours['END']}")
         if targets == []:
-            print("No valid projects to test against. Try one of the following:")
+            print(f"No valid projects to test against. Try one of the following:")
             for project in validation_set:
-                print(f"\t{project}")
+                print(f"{colours['OKBLUE']}\t{project}{colours['END']}")
             exit()
     for project in targets:
         test_start = dt.now()
-        print(f"\n\nRunning tests for project {project}...")
+        print(f"{colours['BOLD']}\n\nRunning tests for project {project}...{colours['END']}")
         print('_' * 79)
         results = looker_client.run_lookml_test(project)
         if len(results) == 0:
-            print("No tests set up.")
+            print(f"{colours['FAIL']}No tests set up.{colours['END']}")
         else:
             for result in results:
                 test_name = result.test_name
@@ -46,10 +60,10 @@ def run_target_tests(targets=None):
                     test_name = test_name[:66] + '...'
                 test_ct += 1
                 if len(result.errors) == 0:
-                    print(f"  {test_name:<72} PASS")
+                    print(f"{colours['OKGREEN']}  {test_name:<72} PASS{colours['END']}")
                 else:
                     error_ct += 1
-                    print(f"  {test_name:<72} FAIL")
+                    print(f"{colours['FAIL']}  {test_name:<72} FAIL{colours['END']}")
                     error = result.errors[0]
                     other_errors = len(result.errors) - 1
                     message = str(error.sanitized_message).splitlines()[0]
@@ -59,9 +73,10 @@ def run_target_tests(targets=None):
             test_end = dt.now()
             test_duration = (test_end - test_start).total_seconds()
             print(f"\nTests for {project} completed in {test_duration:.02f} seconds")
-    success_rate = 1 - (error_ct / test_ct)
-    print(f"\n{error_ct} / {test_ct} failed")
-    print(f"{success_rate:.1%} success rate")
+    if test_ct > 0:
+        success_rate = 1 - (error_ct / test_ct)
+        print(f"\n{error_ct} / {test_ct} failed")
+        print(f"{success_rate:.1%} success rate")
 
 
 
@@ -72,7 +87,7 @@ if __name__ == '__main__':
     args = parser.parse_args()
     if args.dev:
         looker_client.update_session({'workspace_id': 'dev'})
-        print("Comparing to dev branch")
+        print(f"{colours['WARNING']}Comparing to dev branch{colours['END']}")
     else:
-        print("Comparing to prod branch")
+        print(f"{colours['HEADER']}Comparing to prod branch{colours['END']}")
     run_target_tests(targets=args.projects)
