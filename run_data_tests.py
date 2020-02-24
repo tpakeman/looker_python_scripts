@@ -21,7 +21,6 @@ try:
     # Use this if testing locally or on a server without a certificate
     urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
     user = looker_client.me()
-    print(user)
     print(f"{colours['HEADER']}Authenticated as {user.display_name} (User ID {user.id}){colours['END']}")
 except SDKError as e:
     print(f"{colours['FAIL']}Could not authenticate. Check `looker.ini` file{colours['END']}")
