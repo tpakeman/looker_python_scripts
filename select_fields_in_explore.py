@@ -1,5 +1,5 @@
 import os
-from looker_sdk import client, models, error
+from looker_sdk import models, error, init31
 from looker_sdk.rtl.transport import TransportSettings
 from looker_sdk.error import SDKError
 import argparse
@@ -17,7 +17,7 @@ colours = {'HEADER':'\033[95m',
            'UNDERLINE': '\033[4m'}
 
 
-looker_client = client.setup('looker.ini')
+looker_client = init31('looker.ini')
 try:
     # Use this if testing locally or on a server without a certificate
     urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
@@ -60,7 +60,7 @@ def create_query_from_fields(model_name, explore_name, excludes):
     dims, mes = get_fields_from_model_explore(model_name, explore_name)
     field_set = dims + mes
     field_set = [field for field in field_set if field not in excludes]
-    body = {"model": model_name, 'view': explore_name, 'fields': field_set}
+    body = models.WriteQuery(model=model_name, view=explore_name, fields=field_set)
     query = looker_client.create_query(body)
     del query.client_id
     return query.id, field_set, query.share_url
@@ -126,7 +126,7 @@ if __name__ == '__main__':
     parser.add_argument('--excludes', '-x',  nargs='+', help='Include a space separated list of fully-scoped (view.field) fields to ignore.')
     args = parser.parse_args()
     if args.dev:
-        looker_client.update_session({'workspace_id': 'dev'})
+        looker_client.update_session(models.WriteApiSession(workspace_id='dev'))
         print(f"{colours['WARNING']}Comparing to dev branch{colours['END']}")
     else:
         print(f"{colours['HEADER']}Comparing to prod branch{colours['END']}")

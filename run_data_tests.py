@@ -1,6 +1,6 @@
 # Import libraries
 import os
-from looker_sdk import client, models, error
+from looker_sdk import init31, models
 from looker_sdk.error import SDKError
 from datetime import datetime as dt
 import urllib3
@@ -16,7 +16,7 @@ colours = {'HEADER':'\033[95m',
            'BOLD': '\033[1m',
            'UNDERLINE': '\033[4m'}
 
-looker_client = client.setup('looker.ini')
+looker_client = init31('looker.ini')
 try:
     # Use this if testing locally or on a server without a certificate
     urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
@@ -85,7 +85,7 @@ if __name__ == '__main__':
     parser.add_argument('--dev', '-d', action='store_true', help='Include to compare to dev branch. Omit to use production.')
     args = parser.parse_args()
     if args.dev:
-        looker_client.update_session({'workspace_id': 'dev'})
+        looker_client.update_session(models.WriteApiSession(workspace_id='dev'))
         print(f"{colours['WARNING']}Comparing to dev branch{colours['END']}")
     else:
         print(f"{colours['HEADER']}Comparing to prod branch{colours['END']}")
