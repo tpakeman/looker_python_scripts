@@ -1,11 +1,13 @@
 # looker_python_scripts
 A selection of Python 3 scripts to achieve various tasks in Looker
+Each script is saved in a self-contained subfolder of this repo: navigate to the subdirectory and run `main.py` following the instructions below
 
 ### Requirements
 * Python 3.7+
 * [looker_sdk](https://pypi.org/project/looker-sdk/) available on PyPI
-* `looker.ini` file stored (usually in the same directory as the scripts) and containing Looker API credentials as explained in docs on PyPI
-
+* `looker.ini` file stored (usually in the same directory as the scripts) and containing Looker API credentials as explained in docs on [PyPI](https://pypi.org/project/looker-sdk/)
+  * See `looker.ini.example` for sample format
+* Run `pipenv shell && pipenv install` to install required modules using pipenv (recommended) or use `pip install -r requirements.txt`
 ---
 
 ## Run data tests
